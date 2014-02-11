@@ -21,8 +21,10 @@ class DataString(object):
 
     def __repr__(self):
         s = ""
-        s += "Input : " + self.inputString[:10] + "\n"
-        s += "Output: " + (self.outputString[:10] if self.outputString else "...")
+        #s += "Input : " + self.inputString[:10] + "\n"
+        #s += "Output: " + (self.outputString[:10] if self.outputString else "...")
+        s += "Input : " + self.inputString + "\n"
+        s += "Output: " + self.outputString
         return s
 
     def alreadyComputed(f):
