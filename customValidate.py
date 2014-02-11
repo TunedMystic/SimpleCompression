@@ -1,5 +1,12 @@
-import re
+"""
+A python program that implements a simple
+compression and decompression algorithm.
 
+           Sandeep Jadoonanan
+                2/11/2014
+"""
+
+import re
 
 def overkillValidate(inputStr):
     """

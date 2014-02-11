@@ -11,6 +11,7 @@ import re
 import customValidate as cv
 
 class DataString(object):
+    # Regex patterns to check for valid strings
     ReCompression = r"^[A-Z]+$"
     ReDecompression = r"^((([A-Z])\3[0-9])|[A-Z])+$"
 
@@ -24,9 +25,26 @@ class DataString(object):
         s += "Output: " + (self.outputString[:10] if self.outputString else "...")
         return s
 
+    def alreadyComputed(f):
+        """
+        Simple decorator to check if the output
+        string has already been computed
+        """
+        def computed(self):
+           if not self.outputString:
+              #print "S: first time"
+              return f(self)
+           else:
+              #print "S: already computed"
+              return self.outputString
+        return computed
+
     @abc.abstractmethod
+    @alreadyComputed
     def crunch(self):
         pass
+
+    alreadyComputed = staticmethod(alreadyComputed)
 
 
 class Compressor(DataString):
@@ -36,6 +54,7 @@ class Compressor(DataString):
         else:
             raise Exception("Invalid string for Compressor")
 
+    @DataString.alreadyComputed
     def crunch(self):
 
         def gatherElements(el, i):
@@ -114,6 +133,7 @@ class Decompressor(DataString):
         else:
             raise Exception("Invalid string for Decompressor")
 
+    @DataString.alreadyComputed
     def crunch(self):
 
         def nextIsSame(ch, i):
@@ -167,15 +187,3 @@ class Decompressor(DataString):
 
         return self.outputString
 
-
-
-
-if __name__ == "__main__":
-    print Compressor("AABBBBBBBBBBBBBBBB").crunch()
-    print "----kk"
-
-    print Decompressor("AA3BB0C").crunch()
-
-    print Decompressor("AA0BB9BB3").crunch()
-
-    print Decompressor("ABCDEFF0").crunch()
