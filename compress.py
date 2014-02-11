@@ -42,5 +42,3 @@ if args.decompress:
 if not args.compress and not args.decompress:
     print "\nCompress.py > No input values\n"
 
-
-

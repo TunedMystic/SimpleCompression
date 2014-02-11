@@ -47,8 +47,3 @@ class encodingTest(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(verbosity = 2)
 
-"""
-from dataEncode import Decompressor as d, Compressor as c
-d1 = d("BB9")
-c1 = c("AAABBAABA")
-"""
