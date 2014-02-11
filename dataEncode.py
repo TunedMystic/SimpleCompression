@@ -1,4 +1,3 @@
-
 """
 A python program that implements a simple
 compression and decompression algorithm.
@@ -9,16 +8,20 @@ compression and decompression algorithm.
 
 import abc
 import re
+import customValidate as cv
 
 class DataString(object):
+    ReCompression = r"^[A-Z]+$"
+    ReDecompression = r"^((([A-Z])\3[0-9])|[A-Z])+$"
+
     def __init__(self, inputStr = ""):
         self.inputString = inputStr
         self.outputString = ""
 
-    def __unicode__(self):
+    def __repr__(self):
         s = ""
         s += "Input : " + self.inputString[:10] + "\n"
-        s += "Output: " + self.outputString[:10] if self.outputString else "..."
+        s += "Output: " + (self.outputString[:10] if self.outputString else "...")
         return s
 
     @abc.abstractmethod
@@ -28,7 +31,10 @@ class DataString(object):
 
 class Compressor(DataString):
     def __init__(self, inputStr = ""):
-        super(Compressor, self).__init__(inputStr)
+        if re.match(Compressor.ReCompression, inputStr):
+           super(Compressor, self).__init__(inputStr)
+        else:
+            raise Exception("Invalid string for Compressor")
 
     def crunch(self):
 
@@ -46,7 +52,6 @@ class Compressor(DataString):
             return counter
         # ------------------------------------------------
 
-
         def compressThis(el, elCount):
             """
             Compresses a large string (of same elements):
@@ -58,21 +63,18 @@ class Compressor(DataString):
             'AAAAAAAAAAA' -> AA9
             'AAAAAAAAAAAA' -> AA9A
             'AAAAAAAAAAAAA' -> AA9AA0
-               ...
             """
-            
             output = ""
             remainder = elCount
              
             if remainder > 11:
                 iterations, remainder = divmod(elCount, 11)
-                output += (el * 2 + str(9) ) * iterations
-             
+                output += (el * 2 + str(9) ) * iterations 
             if remainder >= 2:
-                output += el * 2 + str(remainder - 2)
-                
+                output += el * 2 + str(remainder - 2)   
             else:
                 output += el * remainder
+
             return output
         # ------------------------------------------------
 
@@ -82,19 +84,15 @@ class Compressor(DataString):
         chEncode = ""
         done = False
 
-        #for i, ch in enumerate(self.inputString):
-        while done == False:
+        while not done:
             ch = self.inputString[i]
-
             # Returns the count of the element 'ch'
             chCount = gatherElements(ch, i)
-
             if chCount > 1:
                 # Compress the substring
                 chEncode = compressThis(ch, chCount)
             else:
                 chEncode = ch
-
             # Update the output
             self.outputString += chEncode
 
@@ -106,7 +104,78 @@ class Compressor(DataString):
         return self.outputString
 
 
+class Decompressor(DataString):
+    def __init__(self, inputStr = ""):
+        if re.match(Decompressor.ReDecompression, inputStr):
+            if cv.overkillValidate(inputStr):
+               super(Decompressor, self).__init__(inputStr)
+            else:
+               raise Exception("Invalid string for Decompressor")
+        else:
+            raise Exception("Invalid string for Decompressor")
+
+    def crunch(self):
+
+        def nextIsSame(ch, i):
+            """
+            Returns True if the next element (from index 'i')
+            is the same as ch.
+
+            Returns False otherwise.
+            """
+            if i == len(self.inputString) - 1:
+                return False
+            else:
+                return ch == self.inputString[i + 1]
+        # ------------------------------------------------
+
+        def expandChunk(chunkStr):
+            """
+            Takes a string excerpt of the form:
+                         AA# 
+            ( where "A" is a character, where "#" is a number )
+            and expands it. So:
+
+            AA1 -> AAA
+            AA3 -> AAAAA
+            AA0 -> AA
+               ...
+            """
+            return (chunkStr[0] * 2) + (chunkStr[0] * int(chunkStr[2]) )
+        # ------------------------------------------------
+
+        i = 0
+        done = False
+        ch = ""
+        chDecode = ""
+
+        while not done:
+            ch = self.inputString[i]
+            # Is the next character the same?
+            if nextIsSame(ch, i):
+                chDecode = expandChunk(self.inputString[i: i + 3])
+                i += 3
+            else:
+                chDecode = ch
+                i += 1
+            # Update the output
+            self.outputString += chDecode
+            
+            # Increment counter or finish the algorithm
+            if i == len(self.inputString):
+                done = True
+
+        return self.outputString
+
+
 
 
 if __name__ == "__main__":
     print Compressor("AABBBBBBBBBBBBBBBB").crunch()
+    print "----kk"
+
+    print Decompressor("AA3BB0C").crunch()
+
+    print Decompressor("AA0BB9BB3").crunch()
+
+    print Decompressor("ABCDEFF0").crunch()
