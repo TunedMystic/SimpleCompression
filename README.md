@@ -20,7 +20,7 @@ Input | Output
 "__A__",      |  "__A__"
 "__AA__",     |  "__AA0__"
 "__AAAA__",   |  "__AA2__"
-"__AAABCC__", |  "__AAA1BCC0__"
+"__AAABCC__", |  "__AA1BCC0__"
 
 
 ### Decompression:
